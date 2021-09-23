@@ -6,15 +6,11 @@
 /*   By: ppiques <ppiques@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/12/14 11:20:00 by ppiques           #+#    #+#             */
-/*   Updated: 2021/01/20 15:45:34 by ppiques          ###   ########.fr       */
+/*   Updated: 2021/09/23 15:28:11 by ppiques          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line_bonus.h"
-#include <stdio.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
 
 char	*get_save(char *save)
 {
@@ -33,7 +29,8 @@ char	*get_save(char *save)
 		free(save);
 		return (0);
 	}
-	if (!(ret = malloc(sizeof(char) * ((ft_strlen(save) - i) + 1))))
+	ret = malloc(sizeof(char) * ((ft_strlen(save) - i) + 1));
+	if (!ret)
 		return (0);
 	i++;
 	while (save[i])
@@ -43,20 +40,29 @@ char	*get_save(char *save)
 	return (ret);
 }
 
-int		get_next_line(int fd, char **line)
+int	error_check(int fd, char *buff, char **line)
+{
+	if (!line || fd < 0 || BUFFER_SIZE <= 0)
+		return (-1);
+	if (!buff)
+		return (-1);
+	return (0);
+}
+
+int	get_next_line(int fd, char **line)
 {
 	char			*buff;
 	static char		*save[255];
 	int				nl;
 
 	nl = 1;
-	if (!line || fd < 0 || BUFFER_SIZE <= 0)
-		return (-1);
-	if (!(buff = malloc(sizeof(char) * (BUFFER_SIZE + 1))))
+	buff = malloc(sizeof(char) * (BUFFER_SIZE + 1));
+	if (error_check(fd, buff, line) == -1)
 		return (-1);
 	while (!newline_end(save[fd]) && nl != 0)
 	{
-		if ((nl = read(fd, buff, BUFFER_SIZE)) == -1)
+		nl = read(fd, buff, BUFFER_SIZE);
+		if (nl == -1)
 		{
 			free(buff);
 			return (-1);
